@@ -131,7 +131,7 @@ node_modules/
 
 ## 문서
 
-- **[개발 가이드](DEVELOPMENT.md)**: Feature 개발, API 레퍼런스, 마이그레이션 가이드
+- **[개발 가이드](docs/DEVELOPMENT.md)**: Feature 개발, API 레퍼런스, 마이그레이션 가이드
 - **[CLAUDE.md](CLAUDE.md)**: Claude Code를 위한 프로젝트 가이드
 
 ## 기여
