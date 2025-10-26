@@ -1,0 +1,34 @@
+# Logs
+*.log
+sdcard/botData/log/
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# IDE and editor files
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Config files with sensitive data
+sdcard/botData/config/admin.json
+sdcard/botData/config/ban.json
+sdcard/botData/config/roomCache.json
+sdcard/botData/config/firstRoom.json
+sdcard/botData/config/kaling_cookies.json
+
+# Feature flags (user-specific)
+sdcard/botData/config/featureFlags
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS specific
+Thumbs.db

@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris-Graal 개발 문서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-tertiary: #adb5bd;
+            --border-color: #dee2e6;
+            --accent: #0066cc;
+            --accent-hover: #0052a3;
+            --code-bg: #f5f5f5;
+            --sidebar-width: 280px;
+            --header-height: 60px;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --text-tertiary: #6c757d;
+            --border-color: #495057;
+            --code-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 1000;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            width: 250px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .theme-toggle {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1.5rem 0;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 0.5rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .sidebar-nav a:hover {
+            color: var(--accent);
+            background-color: var(--bg-tertiary);
+        }
+
+        .sidebar-nav a.active {
+            color: var(--accent);
+            font-weight: 600;
+            background-color: var(--bg-tertiary);
+        }
+
+        .sidebar-nav .section-title {
+            padding: 0.75rem 1.5rem 0.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            font-weight: 700;
+        }
+
+        .sidebar-nav .subsection {
+            padding-left: 2.5rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--header-height);
+            padding: 3rem;
+            max-width: 900px;
+        }
+
+        .main-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .main-content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .main-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .main-content h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .main-content p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .main-content ul, .main-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .main-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .main-content a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .main-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        /* Blockquote */
+        blockquote {
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #0dcaf0;
+            color: #055160;
+        }
+
+        .alert-success {
+            background-color: #d1e7dd;
+            border-color: #198754;
+            color: #0f5132;
+        }
+
+        [data-theme="dark"] .alert-warning {
+            background-color: #332701;
+            color: #ffca2c;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background-color: #032830;
+            color: #6edff6;
+        }
+
+        [data-theme="dark"] .alert-success {
+            background-color: #051b11;
+            color: #75b798;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Search Results */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-top: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .search-results.show {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .search-result-excerpt {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .highlight {
+            background-color: #ffeb3b;
+            color: #000;
+            padding: 0 0.2em;
+            border-radius: 2px;
+        }
+
+        [data-theme="dark"] .highlight {
+            background-color: #ffc107;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 2rem 1rem;
+            }
+
+            .search-input {
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <h1>Iris-Graal 개발 문서</h1>
+        <div class="header-actions">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="검색..." id="searchInput">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+            <button class="theme-toggle" id="themeToggle">🌙 다크모드</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <ul class="sidebar-nav">
+            <li class="section-title">시작하기</li>
+            <li><a href="#overview" class="nav-link">프로젝트 개요</a></li>
+            <li><a href="#migration" class="nav-link">마이그레이션 가이드</a></li>
+            <li class="subsection"><a href="#legacy-migration" class="nav-link">레거시 API</a></li>
+            <li class="subsection"><a href="#api2-migration" class="nav-link">API2</a></li>
+
+            <li class="section-title">아키텍처</li>
+            <li><a href="#architecture" class="nav-link">전체 구조</a></li>
+            <li><a href="#message-flow" class="nav-link">메시지 플로우</a></li>
+            <li><a href="#threading" class="nav-link">스레딩 모델</a></li>
+
+            <li class="section-title">개발 가이드</li>
+            <li><a href="#feature-guide" class="nav-link">Feature 개발</a></li>
+            <li><a href="#message-handler" class="nav-link">메시지 핸들러</a></li>
+            <li><a href="#feed-handler" class="nav-link">피드 핸들러</a></li>
+            <li><a href="#schedule" class="nav-link">스케줄 작업</a></li>
+
+            <li class="section-title">API 레퍼런스</li>
+            <li><a href="#api-message" class="nav-link">Message 객체</a></li>
+            <li><a href="#api-feed" class="nav-link">Feed 객체</a></li>
+            <li><a href="#api-router" class="nav-link">Router API</a></li>
+            <li><a href="#api-queue" class="nav-link">Queue & Sender</a></li>
+            <li><a href="#api-hydrator" class="nav-link">Hydrator</a></li>
+            <li><a href="#api-utils" class="nav-link">Utils</a></li>
+            <li><a href="#api-kakaolink" class="nav-link">KakaoLink</a></li>
+
+            <li class="section-title">고급 주제</li>
+            <li><a href="#thread-safety" class="nav-link">Thread Safety</a></li>
+            <li><a href="#performance" class="nav-link">성능 최적화</a></li>
+
+            <li class="section-title">문제 해결</li>
+            <li><a href="#troubleshooting" class="nav-link">자주 발생하는 오류</a></li>
+            <li><a href="#debugging" class="nav-link">디버깅 팁</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section id="overview">
+            <h1>Iris-Graal 개발 문서</h1>
+            <blockquote>MessengerBot R 0.7.40+ 기반 카카오톡 봇 프레임워크</blockquote>
+
+            <h2>프로젝트 개요</h2>
+
+            <h3>Iris-Graal이란?</h3>
+            <p>Iris-Graal은 MessengerBot R 0.7.40+ 환경에서 동작하는 모던 카카오톡 봇 프레임워크입니다. GraalJS 기반으로 작성되었으며, 다음과 같은 특징을 가집니다:</p>
+            <ul>
+                <li><strong>Thread-Safe 아키텍처</strong>: Java Thread Pool과 Script Main Thread 분리</li>
+                <li><strong>Queue 기반 전송 시스템</strong>: Rate Limiting 및 재시도 로직 내장</li>
+                <li><strong>모듈화된 구조</strong>: CommonJS 모듈 시스템 활용</li>
+                <li><strong>Feature 플러그인 시스템</strong>: 기능별 독립적 개발 및 관리</li>
+                <li><strong>Type-Safe</strong>: JSDoc 기반 타입 정의</li>
+            </ul>
+        </section>
+
+        <section id="migration">
+            <h2>마이그레이션 가이드</h2>
+
+            <h3 id="legacy-migration">레거시 API → Iris-Graal</h3>
+
+            <h4>기본 구조 변경</h4>
+            <p><strong>Before (레거시 API)</strong></p>
+            <pre><code>function response(room, msg, sender, isGroupChat, replier, imageDB, packageName) {
+    if (msg === "!안녕") {
+        replier.reply("안녕하세요!");
+    }
+}</code></pre>
+
+            <p><strong>After (Iris-Graal)</strong></p>
+            <pre><code>/**
+ * @typedef {object} Message
+ * @property {Author} author 발신자 정보
+ * @property {Room} room 방 정보
+ * @property {string} content 전체 메시지 문자열
+ * @property {string} id 메시지 id
+ * @property {string} type 메시지 타입 번호, 정수형 문자열
+ * @property {boolean} isMine 내가(봇이) 보낸 메시지인지 여부
+ * @property {Reply|null} reply 답장 정보
+ * @property {Mention[]} mention 멘션 정보
+ * @property {Attachment[]} attachment 첨부파일 정보
+ * @property {(text: string) => boolean} send 텍스트 응답 전송, 항상 true 반환
+ * @property {(media: string|string[], timeoutMs?: number, fileName?: string) => boolean} sendMedia 파일 응답 전송, 항상 true 반환
+ */
+function onMessage(msg) {
+    if (msg.content === "!안녕") {
+        return msg.send("안녕하세요!");
+    }
+}
+
+/** @description 기능 등록 */
+function register({ registerMessage }) {
+    registerMessage(onMessage);
+}
+
+/* 또는
+function register(context) {
+    context.registerMessage((msg) => {
+        if (msg.content === "!안녕") {
+            return msg.send("안녕하세요!");
+        }
+    });
+}
+*/
+
+module.exports = { register };</code></pre>
+
+            <h4>주요 변경 사항</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>레거시 API</th>
+                        <th>Iris-Graal</th>
+                        <th>비고</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>msg</code></td>
+                        <td><code>msg.content</code></td>
+                        <td>메시지 내용</td>
+                    </tr>
+                    <tr>
+                        <td><code>sender</code></td>
+                        <td><code>msg.author.name</code></td>
+                        <td>발신자 이름</td>
+                    </tr>
+                    <tr>
+                        <td><code>room</code></td>
+                        <td><code>msg.room.name</code></td>
+                        <td>방 이름</td>
+                    </tr>
+                    <tr>
+                        <td><code>replier.reply(text)</code></td>
+                        <td><code>msg.send(text)</code></td>
+                        <td>텍스트 전송</td>
+                    </tr>
+                    <tr>
+                        <td><code>replier.reply(ImageDB.getProfileBase64())</code></td>
+                        <td><code>msg.sendMedia(url)</code></td>
+                        <td>미디어 전송</td>
+                    </tr>
+                    <tr>
+                        <td>전역 변수</td>
+                        <td>모듈 스코프</td>
+                        <td>상태 관리</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 id="api2-migration">API2 → Iris-Graal</h3>
+            <p>API2는 레거시 API의 개선판이지만, Iris-Graal과는 구조가 다릅니다.</p>
+
+            <p><strong>Before (API2)</strong></p>
+            <pre><code>const bot = BotManager.getCurrentBot();
+
+function onMessage(msg) {
+    if (msg.content === "!안녕") {
+        msg.reply("안녕하세요!");
+    }
+};
+
+bot.addListener(Event.MESSAGE, onMessage);</code></pre>
+
+            <p><strong>After (Iris-Graal)</strong></p>
+            <pre><code>function onMessage(msg) {
+    if (msg.content === "!안녕") {
+        return msg.send("안녕하세요!");
+    }
+}
+
+/** @description 기능 등록 */
+function register({ registerMessage }) {
+    registerMessage(onMessage);
+}
+
+module.exports = { register };</code></pre>
+        </section>
+
+        <section id="architecture">
+            <h2>아키텍처</h2>
+
+            <h3>전체 구조</h3>
+            <pre><code>main.js (엔트리 포인트)
+├── node_modules/
+│   ├── core/           # 핵심 로직
+│   │   ├── router.js       # 메시지 라우팅
+│   │   ├── schedule.js     # 주기 작업 스케줄러
+│   │   └── featurePolicy.js # 기능 on/off 관리
+│   ├── infra/          # 인프라 계층
+│   │   ├── httpServer.js   # HTTP 웹훅 수신
+│   │   ├── ingress.js      # 이벤트 분배
+│   │   ├── queue.js        # 전송 큐 관리
+│   │   ├── sender.js       # 실제 전송 담당
+│   │   └── roomRegistry.js # 방 정보 캐시
+│   ├── adapters/       # 외부 시스템 어댑터
+│   │   ├── kakao/
+│   │   │   ├── parser.js   # 메시지 파싱
+│   │   │   └── hydrator.js # DB 조회 및 데이터 보강
+│   │   └── external/
+│   │       └── kakaolink.js # 카카오링크 전송
+│   ├── shared/         # 공용 유틸리티
+│   │   ├── config.js       # 설정 상수
+│   │   ├── types.js        # 타입 정의
+│   │   ├── logger.js       # 로깅 시스템
+│   │   └── utils.js        # 범용 유틸
+│   └── features/       # 기능 모듈
+│       ├── moderation.js   # 밴/언밴 관리
+│       ├── memberFeed.js   # 입퇴장 감지
+│       └── ...</code></pre>
+
+            <h3 id="message-flow">메시지 플로우</h3>
+            <pre><code>카카오톡 메시지
+    ↓
+┌─────────────────────────────────────────┐
+│ [httpServer.js]                         │
+│ Java Thread Pool에서 HTTP POST 수신      │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ [ConcurrentLinkedQueue]                 │
+│ Thread-safe 큐에 저장                    │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ [Pump 메커니즘]                          │
+│ 50ms마다 큐 플러시                        │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ [ingress.js]                            │
+│ Raw 데이터 분류 (message/feed)            │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ [router.js]                             │
+│ Priority 순으로 핸들러 실행               │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ [queue.js]                              │
+│ 텍스트/미디어 큐 (Rate Limiting)          │
+└─────────────────────────────────────────┘
+    ↓
+카카오톡 응답 전송</code></pre>
+
+            <h3 id="threading">스레딩 모델</h3>
+            <div class="alert alert-warning">
+                <strong>⚠️ 중요:</strong> Java Thread에서는 Bot.* 또는 MediaSender.* 호출을 지양하세요
+            </div>
+
+            <h4>1. Java Thread Pool (HTTP Server)</h4>
+            <ul>
+                <li><strong>역할</strong>: ServerSocket.accept() 대기, HTTP 요청 수신 및 파싱, ConcurrentQueue에 데이터 추가</li>
+                <li><strong>주의</strong>: Bot.* 또는 MediaSender.* 호출 지양, 메인 스레드 블로킹 주의</li>
+            </ul>
+
+            <h4>2. Main Script Thread</h4>
+            <ul>
+                <li><strong>역할</strong>: Pump가 큐를 비워서 처리, 모든 Bot.send, MediaSender 호출, Timer, setTimeout 실행, Queue 처리</li>
+                <li><strong>특징</strong>: 단일 스레드 → 동기화 불필요, Bot API 안전하게 호출 가능</li>
+            </ul>
+
+            <h4>3. Background Thread (ingress)</h4>
+            <ul>
+                <li><strong>역할</strong>: App.runOnBackgroundThread로 파싱 실행, 핸들러 실행 (CPU 집약적 작업)</li>
+                <li><strong>특징</strong>: 메인 스레드 부하 분산, Bot API 호출 시 큐 사용 필수</li>
+            </ul>
+        </section>
+
+        <section id="feature-guide">
+            <h2>Feature 개발 가이드</h2>
+
+            <h3>기본 템플릿</h3>
+            <pre><code>const _SCRIPT_NAME = "example.js";
+const { Logger } = require("shared/logger");
+const { parseCommand } = require("shared/utils");
+
+// 모듈 스코프 변수 (기능별 상태 저장)
+const state = {};
+
+/**
+ * @description 메시지 핸들러
+ * @param {import("shared/types").Message} msg
+ * @returns {boolean|void} true를 반환하면 이후 핸들러 중단
+ */
+function handleMessage(msg) {
+    const { cmd, args } = parseCommand(msg.content);
+
+    if (cmd === "안녕") {
+        return msg.send("안녕하세요!");
+    }
+
+    // 조건에 맞지 않으면 다음 핸들러로 진행 (return 없음)
+}
+
+/**
+ * @description 피드 핸들러
+ * @param {import("shared/types").Feed} feed
+ */
+function handleJoin(feed) {
+    // 입장 시 환영 메시지
+    feed.send("환영합니다!");
+}
+
+/**
+ * @description Feature 등록
+ * @param {object} context
+ * @param {(handler: Function, priority?: number) => void} context.registerMessage
+ * @param {(feedType: number, handler: Function, priority?: number) => void} context.registerFeed
+ */
+function register(context) {
+    // 메시지 핸들러 등록
+    context.registerMessage(handleMessage);
+
+    // 피드 핸들러 등록 (4: 입장, 2: 퇴장, 6: 강퇴)
+    context.registerFeed(4, handleJoin);
+}
+
+module.exports = { register };</code></pre>
+
+            <h3 id="message-handler">메시지 핸들러 작성</h3>
+
+            <h4>Priority 시스템</h4>
+            <p>핸들러는 <strong>Priority 값이 높을수록 먼저 실행</strong>됩니다.</p>
+            <pre><code>context.registerMessage(adminHandler, 1000);  // 가장 먼저 실행
+context.registerMessage(coreHandler, 500);    // 2번째
+context.registerMessage(normalHandler, 100);  // 기본
+context.registerMessage(fallbackHandler, 20); // 마지막</code></pre>
+
+            <h4>핸들러 중단</h4>
+            <pre><code>function handler(msg) {
+    const { cmd } = parseCommand(msg.content);
+
+    // ✅ return msg.send()로 간결하게
+    if (cmd === "도움말") {
+        return msg.send("도움말 내용...");
+    }
+
+    // 조건 불만족 시 return 없음 (다음 핸들러 진행)
+}</code></pre>
+
+            <h3 id="feed-handler">피드 핸들러 작성</h3>
+            <pre><code>function register(context) {
+    context.registerFeed(4, handleJoin);   // 입장
+    context.registerFeed(2, handleLeave);  // 퇴장
+    context.registerFeed(6, handleKick);   // 강퇴
+}
+
+function handleJoin(feed) {
+    feed.send("환영합니다!");
+}</code></pre>
+
+            <h3 id="schedule">스케줄 작업 등록</h3>
+            <pre><code>const { registerPeriodic } = require("core/schedule");
+const { Logger } = require("shared/logger");
+
+function register(context) {
+    // 주기 작업 등록 (10초마다 실행)
+    registerPeriodic({
+        id: "my-task",                // 고유 ID (선택)
+        intervalMs: 10000,            // 10초
+        handler: onTick,              // 핸들러 함수
+        featureName: "기능명",         // Feature Policy 연동
+        roomId: "123456789",          // 방별 토글 (선택)
+        alignToTick: true             // 등록 시점 기준 정렬
+    });
+}
+
+function onTick(now) {
+    // now: 현재 타임스탬프
+    Logger.d("onTick", "10초마다 실행됨: " + now);
+}</code></pre>
+        </section>
+
+        <section id="api-message">
+            <h2>API 레퍼런스</h2>
+
+            <h3>Message 객체</h3>
+            <pre><code>interface Message {
+    // 기본 정보
+    content: string;              // 메시지 내용
+    id: string;                   // 메시지 ID, 정수형 문자열
+    type: string;                 // 메시지 타입 ("1", "2", ...)
+    isMine: boolean;              // 봇이 보낸 메시지 여부
+
+    // 발신자 정보
+    author: {
+        name: string;             // 발신자 이름
+        userId: string;           // 발신자 ID, 정수형 문자열
+        isBanned: boolean;        // 차단 여부
+    };
+
+    // 방 정보
+    room: {
+        name: string;             // 방 이름
+        channelId: string;        // 방 ID, 정수형 문자열
+        isGroupChat: boolean;     // 단체 채팅방 여부
+        isOpenChat: boolean;      // 오픈 채팅방 여부
+    };
+
+    // 첨부파일
+    attachment: Array<{
+        type: string;             // "image", "video", "audio", ...
+        mime: string;             // MIME 타입
+        url: string;              // 다운로드 URL
+        size: number;             // 파일 크기 (byte)
+        name?: string;            // 파일명
+    }>;
+
+    // 답장
+    reply: {
+        srcId: string;            // 원본 메시지 ID, 정수형 문자열
+        srcUserId: string;        // 원본 발신자 ID, 정수형 문자열
+        srcType: string;          // 원본 메시지 타입
+    } | null;
+
+    // 멘션
+    mention: Array<{
+        srcUserId: string;        // 멘션된 사용자 ID, 정수형 문자열
+        at: number[];             // 멘션 위치 (1부터 시작)
+        len: number;              // 멘션 텍스트 길이
+    }>;
+
+    // 응답 메서드
+    send: (text: string) => boolean;  // 텍스트 전송, 항상 true 반환
+    sendMedia: (media: string | string[], timeoutMs?: number, fileName?: string) => boolean;
+}</code></pre>
+
+            <h3 id="api-feed">Feed 객체</h3>
+            <pre><code>interface Feed {
+    feedType: number | string;    // 피드 타입 (2: 퇴장, 4: 입장, 6: 강퇴)
+    roomId?: string;              // 방 ID
+
+    // 응답 메서드
+    send: (text: string) => boolean;
+    sendMedia: (media: string | string[], timeoutMs?: number, fileName?: string) => boolean;
+}</code></pre>
+
+            <h3 id="api-router">Router API</h3>
+            <pre><code>// 메시지 핸들러 등록
+context.registerMessage(
+    handler: (msg: Message) => boolean | void,
+    priority?: number  // 기본값: 100
+): void
+
+// 피드 핸들러 등록
+context.registerFeed(
+    feedType: number,
+    handler: (feed: Feed) => boolean | void,
+    priority?: number
+): void</code></pre>
+
+            <h3 id="api-queue">Queue & Sender</h3>
+            <pre><code>// 텍스트 전송 큐에 추가
+enqueueText(target: string | bigint, text: string): void
+
+// 미디어 전송 큐에 추가
+enqueueMedia(
+    target: string | bigint,
+    media: string | string[],
+    timeoutMs?: number,
+    fileName?: string
+): void</code></pre>
+
+            <h3 id="api-hydrator">Hydrator</h3>
+            <pre><code>// 4000자 이상 메시지 전문 가져오기 (기본 적용됨)
+ensureFullContent(raw: RawData): string
+
+// 답장 원본 메시지 조회
+resolveReplyOriginal(srcId: string): Message | null
+
+// ID로 유저 이름 조회
+getUserNameWithId(userId: string | bigint): string | null
+
+// 프로필 이미지 URL 조회
+getProfileImageUrl(userId: string | bigint, channelId: string | bigint): string | null
+
+// 방 내 모든 멤버 ID 조회
+getAllMemberIds(channelId: string | bigint): string[]
+
+// 방 타입 조회
+getRoomType(channelId: string | bigint): { isOpenChat: boolean, isGroupChat: boolean } | null</code></pre>
+
+            <h3 id="api-utils">Utils</h3>
+            <pre><code>// 명령어 파싱
+parseCommand(content: string, prefix?: string): {
+    cmd: string;      // 소문자 명령어
+    args: string[];   // 인자 배열
+    payload: string;  // 전체 payload
+}
+
+// SQLite 쿼리
+executeQuery(query: string): object | null
+
+// 권한 체크
+isAdmin(userId: string | bigint): boolean
+isBanned(userId: string | bigint): boolean
+
+// 숫자 포맷팅
+splitNum(num: number): string  // 1000 → "1,000"</code></pre>
+
+            <h3 id="api-kakaolink">KakaoLink (커스텀 모듈)</h3>
+
+            <div class="alert alert-info">
+                <strong>ℹ️ 정보:</strong> KakaoLink는 카카오 개발자 센터의 커스텀 템플릿을 사용하여 이미지, 버튼 등이 포함된 리치 메시지를 전송하는 모듈입니다.<br>
+                <strong>원본:</strong> <a href="https://github.com/ye-seola/kakaolink-py" target="_blank">kakaolink-py by ye-seola</a> (Python → JavaScript 포팅)
+            </div>
+
+            <h4>주요 특징</h4>
+            <ul>
+                <li><strong>Iris AOT 자동 연동</strong>: 별도 인증 없이 자동 로그인</li>
+                <li><strong>세션 자동 관리</strong>: 쿠키 기반 세션 유지 및 자동 갱신</li>
+                <li><strong>2FA 자동 처리</strong>: 추가 인증 자동 해결</li>
+                <li><strong>리치 메시지 전송</strong>: 이미지, 버튼, 리스트 등 다양한 형태 지원</li>
+            </ul>
+
+            <h4>초기화</h4>
+            <pre><code>const { create } = require("adapters/external/kakaolink");
+
+// 1. 인스턴스 생성
+const kaling = create({
+    app_key: "YOUR_APP_KEY",    // 필수: 카카오 개발자 센터 JavaScript 키
+    origin: "YOUR_ORIGIN",      // 필수: 등록한 origin (예: https://yourdomain.com)
+
+    // 선택적 옵션
+    searchExact: true,          // 정확히 일치하는 방 이름 검색 (기본값: true)
+    searchFrom: "ALL",          // 검색 범위: "ALL" | "FRIENDS" | "CHATROOMS"
+    searchRoomType: "ALL",      // 방 타입: "ALL" | "OpenMultiChat" | "MultiChat" | "DirectChat"
+    getAuthorization: null,     // 커스텀 인증 함수 (기본값: Iris AOT)
+    cookiePath: "custom.json"   // 쿠키 저장 경로
+});
+
+// 2. 초기화 (세션 확인 및 로그인)
+kaling.init();</code></pre>
+
+            <h4>메시지 전송</h4>
+            <pre><code>// 기본 전송
+const success = kaling.send(
+    "방 이름",           // receiverName: 카카오톡 방 이름 또는 친구 닉네임
+    112762,              // templateId: 커스텀 템플릿 ID
+    {                    // templateArgs: 템플릿 인자 (템플릿 변수명과 일치)
+        uid: "800000000",
+        nickname: "유저닉네임",
+        profile: "https://example.com/profile.jpg",
+        rank: "60"
+    }
+);
+
+if (success) {
+    Logger.i("kakaolink", "전송 성공");
+} else {
+    Logger.e("kakaolink", "전송 실패");
+}
+
+// 검색 옵션 사용
+kaling.send("방 이름", templateId, templateArgs, {
+    searchExact: false,         // 부분 일치 검색
+    searchFrom: "CHATROOMS",    // 채팅방만 검색
+    searchRoomType: "MultiChat" // 일반 단체 채팅방만
+});</code></pre>
+
+            <h4>실전 예제: 지연 초기화 패턴</h4>
+            <pre><code>const { create } = require("adapters/external/kakaolink");
+const { KALING_APP_KEY, KALING_ORIGIN } = require("shared/config");
+
+let kaling = null;
+
+// 지연 초기화: 필요할 때만 생성
+function ensureKaling() {
+    if (kaling) return kaling;
+
+    try {
+        kaling = create({
+            app_key: KALING_APP_KEY,
+            origin: KALING_ORIGIN
+        });
+        kaling.init();
+        return kaling;
+    } catch (e) {
+        Logger.e("feature.js", e);
+        return null;
+    }
+}
+
+// 사용 예시: 텍스트 폴백 패턴
+function sendUserInfo(userInfo, roomName) {
+    // 1. KakaoLink 우선 시도
+    const KL = ensureKaling();
+    if (KL && roomName) {
+        try {
+            const ok = KL.send(roomName, 112762, {
+                uid: userInfo.uid,
+                nickname: userInfo.nickname,
+                profile: userInfo.profileUrl,
+                rank: userInfo.level
+            });
+
+            if (ok) return true;  // 성공 시 종료
+        } catch (e) {
+            Logger.e("feature.js", e);
+        }
+    }
+
+    // 2. 실패 시 텍스트로 폴백
+    const text = buildTextMessage(userInfo);
+    return msg.send(text);
+}</code></pre>
+
+            <h4>검색 옵션 활용</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>옵션</th>
+                        <th>값</th>
+                        <th>설명</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>searchExact</code></td>
+                        <td><code>true</code> (기본값)</td>
+                        <td>정확히 일치하는 방 이름만 검색</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>false</code></td>
+                        <td>방 이름에 포함된 문자열로 검색</td>
+                    </tr>
+                    <tr>
+                        <td><code>searchFrom</code></td>
+                        <td><code>"ALL"</code> (기본값)</td>
+                        <td>친구 + 채팅방 모두 검색</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>"FRIENDS"</code></td>
+                        <td>친구만 검색</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>"CHATROOMS"</code></td>
+                        <td>채팅방만 검색</td>
+                    </tr>
+                    <tr>
+                        <td><code>searchRoomType</code></td>
+                        <td><code>"ALL"</code> (기본값)</td>
+                        <td>모든 타입의 방 검색</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>"OpenMultiChat"</code></td>
+                        <td>오픈 채팅방만</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>"MultiChat"</code></td>
+                        <td>일반 단체 채팅방만</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><code>"DirectChat"</code></td>
+                        <td>1:1 채팅방만</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>주의사항</h4>
+            <div class="alert alert-warning">
+                <strong>⚠️ 사전 준비 필수</strong>
+                <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>카카오 개발자 센터에서 앱 등록 및 JavaScript 키 발급</li>
+                    <li>커스텀 템플릿 생성 및 템플릿 ID 확인</li>
+                    <li>Origin 등록 (예: <code>https://yourdomain.com</code>)</li>
+                    <li><code>templateArgs</code>의 키는 템플릿 변수명과 정확히 일치해야 함</li>
+                    <li>Iris AOT 서버 연동 (자동 인증을 위해 필요)</li>
+                </ol>
+            </div>
+
+            <h4>디버깅 팁</h4>
+            <pre><code>// 1. 초기화 상태 확인
+const KL = ensureKaling();
+if (!KL) {
+    Logger.e("feature.js", "KakaoLink 초기화 실패");
+}
+
+// 2. 전송 결과 로깅
+const success = KL.send(roomName, templateId, args);
+Logger.d("feature.js", `전송 결과: ${success ? "성공" : "실패"}`);
+
+// 3. 템플릿 인자 확인
+Logger.d("feature.js", templateArgs);  // 자동으로 JSON.stringify
+
+// 4. 방 이름 확인
+Logger.d("feature.js", `방 이름: ${msg.room.name}`);</code></pre>
+
+            <h4>참고 파일</h4>
+            <ul>
+                <li><code>node_modules/adapters/external/kakaolink.js</code> - 모듈 구현</li>
+                <li><a href="https://github.com/ye-seola/kakaolink-py" target="_blank">원본 레포지토리 (Python)</a></li>
+            </ul>
+        </section>
+
+        <section id="thread-safety">
+            <h2>고급 주제</h2>
+
+            <h3>Thread Safety 가이드</h3>
+
+            <h4>⚠️ 지양 사항</h4>
+            <pre><code>// ❌ Java Thread에서 Bot API 호출 지양
+httpServer.onPost = (data) => {
+    Bot.send(roomId, "메시지");
+};
+
+// ❌ Background Thread 내에서 직접 Bot API 호출 지양
+App.runOnBackgroundThread(() => {
+    Bot.send(roomId, "메시지");
+});</code></pre>
+
+            <h4>✅ 권장 패턴</h4>
+            <pre><code>// ✅ 메인 스레드에서만 Bot API 호출
+function handleMessage(msg) {
+    msg.send("안전한 전송");  // 내부적으로 큐 사용
+}
+
+// ✅ 공유 상태는 ConcurrentQueue 사용
+const inbox = new (Java.type("java.util.concurrent.ConcurrentLinkedQueue"))();
+
+// Java Thread에서 추가
+inbox.add(data);
+
+// 메인 스레드에서 처리
+setInterval(() => {
+    while (!inbox.isEmpty()) {
+        const item = inbox.poll();
+        Bot.send(roomId, item);
+    }
+}, 100);</code></pre>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>문제 해결</h2>
+
+            <h3>자주 발생하는 오류</h3>
+
+            <h4>1. 메시지가 전송되지 않음</h4>
+            <p><strong>원인:</strong> 큐가 시작되지 않음 또는 중단됨</p>
+            <p><strong>해결:</strong></p>
+            <pre><code>// main.js에서 확인
+queue.start();  // 부팅 시 호출 확인
+
+// 디버깅
+const { size } = require("infra/queue");
+Logger.i(_SCRIPT_NAME, `큐 크기: ${size()}`);</code></pre>
+
+            <h4>2. "Module not found: shared/logger"</h4>
+            <p><strong>원인:</strong> 상대 경로 사용</p>
+            <p><strong>해결:</strong></p>
+            <pre><code>// ❌ 잘못된 경로
+require("../shared/logger");
+
+// ✅ 올바른 경로
+require("shared/logger");  // node_modules 기준</code></pre>
+
+            <h4>3. 핸들러가 실행되지 않음</h4>
+            <p><strong>원인:</strong> Feature가 등록되지 않음 또는 비활성화됨</p>
+            <p><strong>해결:</strong></p>
+            <pre><code>// 1. router.js의 features 배열에 추가 확인
+// 2. featurePolicy 확인
+const enabled = featurePolicy.isEnabledForRoom(roomId, "기능명");
+Logger.d(_SCRIPT_NAME, `기능 활성화 여부: ${enabled}`);</code></pre>
+
+            <h3 id="debugging">디버깅 팁</h3>
+
+            <h4>로그 활용</h4>
+            <pre><code>// 메시지 내용 확인
+Logger.d(_SCRIPT_NAME, `수신: ${msg.content}`);
+
+// 객체 전체 출력
+Logger.d(_SCRIPT_NAME, msg);</code></pre>
+
+            <h4>큐 상태 모니터링</h4>
+            <pre><code>const { size, sizeText, sizeMedia } = require("infra/queue");
+
+Logger.i(_SCRIPT_NAME, `큐: ${size()} (텍스트: ${sizeText()}, 미디어: ${sizeMedia()})`);</code></pre>
+        </section>
+    </main>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', savedTheme);
+        updateThemeButton(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        });
+
+        function updateThemeButton(theme) {
+            themeToggle.textContent = theme === 'dark' ? '☀️ 라이트모드' : '🌙 다크모드';
+        }
+
+        // Navigation Active State
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        function setActiveLink() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', setActiveLink);
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    window.scrollTo({
+                        top: targetSection.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Search Functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        // Build search index
+        const searchIndex = [];
+        sections.forEach(section => {
+            const headings = section.querySelectorAll('h2, h3, h4');
+            headings.forEach(heading => {
+                searchIndex.push({
+                    title: heading.textContent,
+                    id: section.id,
+                    content: heading.nextElementSibling?.textContent || '',
+                    element: heading
+                });
+            });
+
+            const paragraphs = section.querySelectorAll('p');
+            paragraphs.forEach((p, idx) => {
+                if (idx < 2) { // Only first 2 paragraphs per section
+                    searchIndex.push({
+                        title: section.querySelector('h2, h3')?.textContent || 'Untitled',
+                        id: section.id,
+                        content: p.textContent,
+                        element: p
+                    });
+                }
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            if (query.length < 2) {
+                searchResults.classList.remove('show');
+                return;
+            }
+
+            const results = searchIndex.filter(item => {
+                return item.title.toLowerCase().includes(query) ||
+                       item.content.toLowerCase().includes(query);
+            }).slice(0, 10);
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="search-result-item"><div class="search-result-title">검색 결과 없음</div></div>';
+            } else {
+                searchResults.innerHTML = results.map(result => {
+                    const excerpt = getExcerpt(result.content, query);
+                    return `
+                        <div class="search-result-item" onclick="navigateTo('${result.id}')">
+                            <div class="search-result-title">${highlightText(result.title, query)}</div>
+                            <div class="search-result-excerpt">${highlightText(excerpt, query)}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            searchResults.classList.add('show');
+        });
+
+        function getExcerpt(text, query) {
+            const index = text.toLowerCase().indexOf(query.toLowerCase());
+            if (index === -1) return text.substring(0, 100) + '...';
+
+            const start = Math.max(0, index - 40);
+            const end = Math.min(text.length, index + query.length + 40);
+            return (start > 0 ? '...' : '') + text.substring(start, end) + (end < text.length ? '...' : '');
+        }
+
+        function highlightText(text, query) {
+            const regex = new RegExp(`(${query})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+
+        function navigateTo(id) {
+            const section = document.getElementById(id);
+            if (section) {
+                window.scrollTo({
+                    top: section.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+                searchResults.classList.remove('show');
+                searchInput.value = '';
+            }
+        }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
