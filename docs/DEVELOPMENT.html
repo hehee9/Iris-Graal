@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iris-Graal 개발 문서</title>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="highlight-light">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="highlight-dark" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -232,11 +239,18 @@
             background-color: var(--code-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            padding: 1rem;
+            padding: 0;
             overflow-x: auto;
             margin-bottom: 1rem;
             font-size: 0.9rem;
             line-height: 1.5;
+        }
+
+        pre code {
+            display: block;
+            padding: 1rem;
+            background-color: transparent;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         }
 
         code {
@@ -247,9 +261,9 @@
             font-size: 0.9em;
         }
 
-        pre code {
-            background-color: transparent;
-            padding: 0;
+        /* Override highlight.js background to match theme */
+        .hljs {
+            background-color: var(--code-bg) !important;
         }
 
         /* Tables */
@@ -577,7 +591,7 @@ module.exports = { register };</code></pre>
                         <td>텍스트 전송</td>
                     </tr>
                     <tr>
-                        <td><code>replier.reply(ImageDB.getProfileBase64())</code></td>
+                        <td><code>new MediaSender().send(channelId, url)</code></td>
                         <td><code>msg.sendMedia(url)</code></td>
                         <td>미디어 전송</td>
                     </tr>
@@ -1228,14 +1242,22 @@ Logger.i(_SCRIPT_NAME, `큐: ${size()} (텍스트: ${sizeText()}, 미디어: ${s
     </main>
 
     <script>
+        // Initialize Highlight.js
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+        });
+
         // Theme Toggle
         const themeToggle = document.getElementById('themeToggle');
         const html = document.documentElement;
+        const highlightLight = document.getElementById('highlight-light');
+        const highlightDark = document.getElementById('highlight-dark');
 
         // Load saved theme
         const savedTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', savedTheme);
         updateThemeButton(savedTheme);
+        updateHighlightTheme(savedTheme);
 
         themeToggle.addEventListener('click', () => {
             const currentTheme = html.getAttribute('data-theme');
@@ -1243,10 +1265,21 @@ Logger.i(_SCRIPT_NAME, `큐: ${size()} (텍스트: ${sizeText()}, 미디어: ${s
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeButton(newTheme);
+            updateHighlightTheme(newTheme);
         });
 
         function updateThemeButton(theme) {
             themeToggle.textContent = theme === 'dark' ? '☀️ 라이트모드' : '🌙 다크모드';
+        }
+
+        function updateHighlightTheme(theme) {
+            if (theme === 'dark') {
+                highlightLight.disabled = true;
+                highlightDark.disabled = false;
+            } else {
+                highlightLight.disabled = false;
+                highlightDark.disabled = true;
+            }
         }
 
         // Navigation Active State

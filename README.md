@@ -124,7 +124,6 @@ node_modules/
 │   ├── logger.js          # 로깅 시스템
 │   └── utils.js           # 범용 유틸
 └── features/          # 기능 모듈
-    ├── admin.js           # 관리자 명령어
     ├── moderation.js      # 밴/언밴 관리
     ├── memberFeed.js      # 입퇴장 감지
     └── ...

@@ -42,7 +42,6 @@ node_modules/
 │    ├─ router.js // 파싱한 메시지를 기능 모듈로 분배
 │    └─ schedule.js // 중앙 tick 기반 주기 작업 레지스트리
 ├─ features/
-│    ├─ admin.js // 관리자용 기본 명령어 모음
 │    ├─ moderation.js // 답장으로 밴/언밴 관리.
 │    ├─ memberFeed.js // 입장/퇴장/강퇴 시 반응.
 │    ├─ example.js // 예시 파일
